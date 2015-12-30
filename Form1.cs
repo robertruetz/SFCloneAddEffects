@@ -107,7 +107,7 @@ public partial class Form1 : Form
             this.effectsListBox.ItemHeight = 20;
             this.effectsListBox.Location = new System.Drawing.Point(51, 176);
             this.effectsListBox.Name = "effectsListBox";
-            this.effectsListBox.DataSource = this.ChosenEffectsList;
+            this.effectsListBox.DataSource = null;
             this.effectsListBox.Size = new System.Drawing.Size(664, 304);
             this.effectsListBox.TabIndex = 3;
             // 
@@ -160,6 +160,15 @@ public partial class Form1 : Form
         this.effectsListBox.DataSource = null;
         this.effectsListBox.DataSource = ChosenEffectsList;
         this.App.OutputText(string.Format("Added {0} to chosen effects list.", chosenEffect));
+
+        ISfGenericEffect effect = this.App.FindEffect(chosenEffect);
+        ISfGenericPreset preset = effect.ChoosePreset(this.Handle, "Default Template");
+
+        
+        //TODO: Add a sense of order to the effects that is sortable with buttons
+        //TODO: Consider a DataGridView to show Effect name and preset -- Double-click on item lets user edit preset
+        //TODO: Reorder with drag and drop?
+        //TODO: Adding effects adds a button with the effect name and preset -- Clicking button lets user edit the preset
     }
 }
 
