@@ -16,7 +16,10 @@ public partial class Form1 : Form
 
     private bool _DEBUG;
     private string _loopsFolder;
+    private List<string> _chosenEffectsList = new List<string>();
     private Button selectLoopsButton;
+    private Button addFXButton;
+    private ListBox effectsListBox;
     private IScriptableApp _app;
 
     public bool DEBUG
@@ -58,28 +61,65 @@ public partial class Form1 : Form
         }
     }
 
+    public List<string> ChosenEffectsList
+    {
+        get
+        {
+            return _chosenEffectsList;
+        }
+
+        set
+        {
+            _chosenEffectsList = value;
+        }
+    }
+
     private void InitializeComponent()
     {
-        this.selectLoopsButton = new System.Windows.Forms.Button();
-        this.SuspendLayout();
-        // 
-        // selectLoopsButton
-        // 
-        this.selectLoopsButton.Location = new System.Drawing.Point(51, 32);
-        this.selectLoopsButton.Name = "selectLoopsButton";
-        this.selectLoopsButton.Size = new System.Drawing.Size(664, 64);
-        this.selectLoopsButton.TabIndex = 0;
-        this.selectLoopsButton.Text = "Select Loop Files Folder";
-        this.selectLoopsButton.UseVisualStyleBackColor = true;
-        this.selectLoopsButton.Click += new System.EventHandler(this.selectLoopsButton_Click);
-        // 
-        // Form1
-        // 
-        this.ClientSize = new System.Drawing.Size(792, 511);
-        this.Controls.Add(this.selectLoopsButton);
-        this.Name = "Form1";
-        this.Text = "CloneAndAddEffects";
-        this.ResumeLayout(false);
+            this.selectLoopsButton = new System.Windows.Forms.Button();
+            this.addFXButton = new System.Windows.Forms.Button();
+            this.effectsListBox = new System.Windows.Forms.ListBox();
+            this.SuspendLayout();
+            // 
+            // selectLoopsButton
+            // 
+            this.selectLoopsButton.Location = new System.Drawing.Point(51, 32);
+            this.selectLoopsButton.Name = "selectLoopsButton";
+            this.selectLoopsButton.Size = new System.Drawing.Size(664, 64);
+            this.selectLoopsButton.TabIndex = 0;
+            this.selectLoopsButton.Text = "Select Loop Files Folder";
+            this.selectLoopsButton.UseVisualStyleBackColor = true;
+            this.selectLoopsButton.Click += new System.EventHandler(this.selectLoopsButton_Click);
+            // 
+            // addFXButton
+            // 
+            this.addFXButton.Location = new System.Drawing.Point(51, 103);
+            this.addFXButton.Name = "addFXButton";
+            this.addFXButton.Size = new System.Drawing.Size(135, 66);
+            this.addFXButton.TabIndex = 2;
+            this.addFXButton.Text = "Add Effect";
+            this.addFXButton.UseVisualStyleBackColor = true;
+            this.addFXButton.Click += new System.EventHandler(this.addFXButton_Click);
+            // 
+            // effectsListBox
+            // 
+            this.effectsListBox.FormattingEnabled = true;
+            this.effectsListBox.ItemHeight = 20;
+            this.effectsListBox.Location = new System.Drawing.Point(51, 176);
+            this.effectsListBox.Name = "effectsListBox";
+            this.effectsListBox.DataSource = this.ChosenEffectsList;
+            this.effectsListBox.Size = new System.Drawing.Size(664, 304);
+            this.effectsListBox.TabIndex = 3;
+            // 
+            // Form1
+            // 
+            this.ClientSize = new System.Drawing.Size(792, 511);
+            this.Controls.Add(this.effectsListBox);
+            this.Controls.Add(this.addFXButton);
+            this.Controls.Add(this.selectLoopsButton);
+            this.Name = "Form1";
+            this.Text = "CloneAndAddEffects";
+            this.ResumeLayout(false);
 
     }
 
@@ -99,6 +139,27 @@ public partial class Form1 : Form
             return;
         }
 
+    }
+
+    private void populateEffectsListBox()
+    {
+        ISfEffectList fxList = this.App.Effects;
+    }
+
+    private void addFXButton_Click(object sender, EventArgs e)
+    {
+        //TODO: Consider doing this once during object init
+        ISfEffectList fxList = this.App.Effects;
+        string[] fxNames = new string[fxList.Count];
+        for(int x = 0; x < fxList.Count; x++)
+        {
+            fxNames[x] = fxList[x].Name;
+        }
+        string chosenEffect = SfHelpers.ChooseItemFromList("Select destination file type:", fxNames).ToString();
+        ChosenEffectsList.Add(chosenEffect);
+        this.effectsListBox.DataSource = null;
+        this.effectsListBox.DataSource = ChosenEffectsList;
+        this.App.OutputText(string.Format("Added {0} to chosen effects list.", chosenEffect));
     }
 }
 
