@@ -2,12 +2,13 @@
 using System.Windows.Forms;
 using System.Drawing;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using SoundForge;
 
-public partial class Form1 : Form
+public partial class CloneAndAddEffectsForm : Form
 {
-    public Form1(IScriptableApp app)
+    public CloneAndAddEffectsForm(IScriptableApp app)
     {
         this.App = app;
         this.DEBUG = true;
@@ -17,6 +18,7 @@ public partial class Form1 : Form
     private bool _DEBUG;
     private string _loopsFolder;
     private List<string> _chosenEffectsList = new List<string>();
+    private OrderedDictionary _chosenEffectDict = new OrderedDictionary();
     private Button selectLoopsButton;
     private Button addFXButton;
     private ListBox effectsListBox;
@@ -71,6 +73,19 @@ public partial class Form1 : Form
         set
         {
             _chosenEffectsList = value;
+        }
+    }
+
+    public OrderedDictionary ChosenEffectDict
+    {
+        get
+        {
+            return _chosenEffectDict;
+        }
+
+        set
+        {
+            _chosenEffectDict = value;
         }
     }
 
@@ -163,6 +178,7 @@ public partial class Form1 : Form
 
         ISfGenericEffect effect = this.App.FindEffect(chosenEffect);
         ISfGenericPreset preset = effect.ChoosePreset(this.Handle, "Default Template");
+        this.ChosenEffectDict.Add(effect, preset);
 
         
         //TODO: Add a sense of order to the effects that is sortable with buttons
@@ -172,7 +188,7 @@ public partial class Form1 : Form
     }
 }
 
-partial class Form1
+partial class CloneAndAddEffectsForm
 {
     /// <summary>
     /// Required designer variable.
@@ -198,7 +214,7 @@ public class EntryPoint
 {
     public void Begin(IScriptableApp app)
     {
-        Form1 theForm = new Form1(app);
+        CloneAndAddEffectsForm theForm = new CloneAndAddEffectsForm(app);
         theForm.ShowDialog();
     }
 
