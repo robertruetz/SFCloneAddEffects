@@ -14,7 +14,6 @@ public partial class CloneAndAddEffectsForm : Form
         this.DEBUG = true;
         InitializeComponent();
     }
-
     private bool _DEBUG;
     private string _loopsFolder;
     private List<string> _chosenEffectsList = new List<string>();
@@ -22,6 +21,7 @@ public partial class CloneAndAddEffectsForm : Form
     private Button selectLoopsButton;
     private Button addFXButton;
     private ListBox effectsListBox;
+    private Button runScriptButton;
     private IScriptableApp _app;
 
     public bool DEBUG
@@ -94,6 +94,7 @@ public partial class CloneAndAddEffectsForm : Form
             this.selectLoopsButton = new System.Windows.Forms.Button();
             this.addFXButton = new System.Windows.Forms.Button();
             this.effectsListBox = new System.Windows.Forms.ListBox();
+            this.runScriptButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // selectLoopsButton
@@ -119,20 +120,30 @@ public partial class CloneAndAddEffectsForm : Form
             // effectsListBox
             // 
             this.effectsListBox.FormattingEnabled = true;
-            this.effectsListBox.ItemHeight = 20;
+            this.effectsListBox.ItemHeight = 16;
             this.effectsListBox.Location = new System.Drawing.Point(51, 176);
             this.effectsListBox.Name = "effectsListBox";
-            this.effectsListBox.DataSource = null;
-            this.effectsListBox.Size = new System.Drawing.Size(664, 304);
+            this.effectsListBox.Size = new System.Drawing.Size(664, 292);
             this.effectsListBox.TabIndex = 3;
             // 
-            // Form1
+            // runScriptButton
             // 
-            this.ClientSize = new System.Drawing.Size(792, 511);
+            this.runScriptButton.Location = new System.Drawing.Point(51, 496);
+            this.runScriptButton.Name = "runScriptButton";
+            this.runScriptButton.Size = new System.Drawing.Size(664, 66);
+            this.runScriptButton.TabIndex = 4;
+            this.runScriptButton.Text = "RUN SCRIPT";
+            this.runScriptButton.UseVisualStyleBackColor = true;
+            this.runScriptButton.Click += new System.EventHandler(this.runScriptButton_Click);
+            // 
+            // CloneAndAddEffectsForm
+            // 
+            this.ClientSize = new System.Drawing.Size(766, 589);
+            this.Controls.Add(this.runScriptButton);
             this.Controls.Add(this.effectsListBox);
             this.Controls.Add(this.addFXButton);
             this.Controls.Add(this.selectLoopsButton);
-            this.Name = "Form1";
+            this.Name = "CloneAndAddEffectsForm";
             this.Text = "CloneAndAddEffects";
             this.ResumeLayout(false);
 
@@ -141,9 +152,9 @@ public partial class CloneAndAddEffectsForm : Form
     private void selectLoopsButton_Click(object sender, EventArgs e)
     {
         string startDir = @"C:\";
-        if (this.DEBUG)
-            // shortcut to local files for debugging purposes
-            startDir = @"F:\Robert\CodingDump\moh-maker\sample_audio\VO";
+        // For debug purposes, we look for a test_loops folder and start there if it exists.
+        if (Directory.Exists(Path.GetFullPath(".\\test_loops")))
+            startDir = Path.GetFullPath(".\\test_loops");
 
         if ((this.LoopsFolder = SfHelpers.ChooseDirectory("Choose the folder with your segments.", startDir)) != null)
         {
@@ -178,13 +189,61 @@ public partial class CloneAndAddEffectsForm : Form
 
         ISfGenericEffect effect = this.App.FindEffect(chosenEffect);
         ISfGenericPreset preset = effect.ChoosePreset(this.Handle, "Default Template");
-        this.ChosenEffectDict.Add(effect, preset);
+        this.ChosenEffectDict.Add(effect.Name, preset);
 
         
         //TODO: Add a sense of order to the effects that is sortable with buttons
         //TODO: Consider a DataGridView to show Effect name and preset -- Double-click on item lets user edit preset
         //TODO: Reorder with drag and drop?
         //TODO: Adding effects adds a button with the effect name and preset -- Clicking button lets user edit the preset
+    }
+
+    private void runScriptButton_Click(object sender, EventArgs e)
+    {
+        // create output folder
+        string outputDir = Path.Combine(this.LoopsFolder, "Output");
+        this.App.OutputText(string.Format("outputDir: {0}", outputDir));
+        if (!Directory.Exists(outputDir))
+        {
+            Directory.CreateDirectory(outputDir);
+        }
+        
+        // open each wav file in the given folder of loops
+        foreach (string wavFile in Directory.GetFiles(this.LoopsFolder, "*.wav"))
+        {
+            // open the file
+            ISfFileHost loopFile = this.App.OpenFile(wavFile, true, true);
+            // copy the audio and paste it twice to make the loop 3x as long
+            SfAudioSelection asel = new SfAudioSelection(loopFile);
+
+            long origLength = asel.Length;
+
+            ISfFileHost newFile = loopFile.NewFile(asel);
+            SfAudioSelection newAsel = new SfAudioSelection(newFile);
+            loopFile.Close(CloseOptions.DiscardChanges);
+
+            for (int y = 0; y < 2; y++)
+                newFile.OverwriteAudio(newFile.Length, 0, newFile, newAsel);
+
+            // apply the given effects/presets
+            foreach (string efx in ChosenEffectDict.Keys)
+                newFile.DoEffect(efx, ChosenEffectDict[efx], new SfAudioSelection(newFile), EffectOptions.EffectOnly);
+
+            // trim the original length of the loop from the beginning and end to leave the middle loop
+            newFile.CropAudio(origLength, origLength);
+
+            // save to output folder
+            string outPath = Path.Combine(outputDir, Path.GetFileName(wavFile));
+            this.App.OutputText(string.Format("Saving to {0}.", outPath));
+            newFile.SaveAs(outPath, newFile.SaveFormat.Guid, "Default Template", RenderOptions.OverwriteExisting | RenderOptions.WaitForDoneOrCancel);
+            newFile.Close(CloseOptions.SaveChanges);
+
+            this.runScriptButton.Text = "DONE.";
+        }
+
+
+
+
     }
 }
 
