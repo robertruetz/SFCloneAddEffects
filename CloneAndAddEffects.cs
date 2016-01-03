@@ -22,7 +22,19 @@ public partial class CloneAndAddEffectsForm : Form
     private Button addFXButton;
     private ListBox effectsListBox;
     private Button runScriptButton;
+    private Button resetFormButton;
     private IScriptableApp _app;
+
+    public void clearForm()
+    {
+        this.ChosenEffectDict.Clear();
+        this.LoopsFolder = null;
+        this.effectsListBox.DataSource = null;
+        this.selectLoopsButton.Text = "Select Loop Files Folder";
+        this.runScriptButton.Text = "RUN SCRIPT";
+        this.App.OutputText("Form cleared.");
+        this.runScriptButton.Enabled = false;
+    }
 
     public bool DEBUG
     {
@@ -95,6 +107,7 @@ public partial class CloneAndAddEffectsForm : Form
             this.addFXButton = new System.Windows.Forms.Button();
             this.effectsListBox = new System.Windows.Forms.ListBox();
             this.runScriptButton = new System.Windows.Forms.Button();
+            this.resetFormButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // selectLoopsButton
@@ -128,6 +141,7 @@ public partial class CloneAndAddEffectsForm : Form
             // 
             // runScriptButton
             // 
+            this.runScriptButton.Enabled = false;
             this.runScriptButton.Location = new System.Drawing.Point(51, 496);
             this.runScriptButton.Name = "runScriptButton";
             this.runScriptButton.Size = new System.Drawing.Size(664, 66);
@@ -136,9 +150,20 @@ public partial class CloneAndAddEffectsForm : Form
             this.runScriptButton.UseVisualStyleBackColor = true;
             this.runScriptButton.Click += new System.EventHandler(this.runScriptButton_Click);
             // 
+            // resetFormButton
+            // 
+            this.resetFormButton.Location = new System.Drawing.Point(580, 102);
+            this.resetFormButton.Name = "resetFormButton";
+            this.resetFormButton.Size = new System.Drawing.Size(135, 66);
+            this.resetFormButton.TabIndex = 5;
+            this.resetFormButton.Text = "Reset Form";
+            this.resetFormButton.UseVisualStyleBackColor = true;
+            this.resetFormButton.Click += new System.EventHandler(this.resetFormButton_Click);
+            // 
             // CloneAndAddEffectsForm
             // 
             this.ClientSize = new System.Drawing.Size(766, 589);
+            this.Controls.Add(this.resetFormButton);
             this.Controls.Add(this.runScriptButton);
             this.Controls.Add(this.effectsListBox);
             this.Controls.Add(this.addFXButton);
@@ -159,6 +184,7 @@ public partial class CloneAndAddEffectsForm : Form
         if ((this.LoopsFolder = SfHelpers.ChooseDirectory("Choose the folder with your segments.", startDir)) != null)
         {
             this.selectLoopsButton.Text = "Loops Folder: " + this.LoopsFolder;
+            this.runScriptButton.Enabled = true;
         }
         else
         {
@@ -244,6 +270,11 @@ public partial class CloneAndAddEffectsForm : Form
 
 
 
+    }
+
+    private void resetFormButton_Click(object sender, EventArgs e)
+    {
+        this.clearForm();
     }
 }
 
