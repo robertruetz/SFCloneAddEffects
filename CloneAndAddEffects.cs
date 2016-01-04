@@ -191,11 +191,13 @@ public partial class CloneAndAddEffectsForm : Form
     {
         FXButton newButton = new FXButton();
         newButton.Id = Guid.NewGuid();
-        newButton.Size = new Size(this.chosenFXPanel.Width - 8, 50);
+        newButton.Size = new Size(this.chosenFXPanel.Width - 8, 60);
         newButton.BackColor = Button.DefaultBackColor;
         newButton.ForeColor = Button.DefaultForeColor;
         newButton.FlatStyle = FlatStyle.Flat;
         //newButton.TextAlign = ContentAlignment.MiddleLeft;
+        if (preset.Name.Length < 1)
+            preset.Name = "No Preset";
         newButton.Text = String.Format("{0}     |     {1}", effect.Name, preset.Name);
         // Want to make sure our button text is not too long.
         if (newButton.Text.Length > 100)
@@ -203,7 +205,62 @@ public partial class CloneAndAddEffectsForm : Form
         newButton.Effect = effect;
         newButton.Preset = preset;
         newButton.Click += new EventHandler(FXButton_Click);
+
+        Font menuButtonFont = new Font("Microsoft Sans-Serif", 8);
+        Size menuButtonSize = new Size(70, newButton.Height / 3);
+
+        Button upButton = new Button();
+        upButton.Name = newButton.Id.ToString();
+        upButton.FlatStyle = FlatStyle.Flat;
+        upButton.Size = menuButtonSize;
+        upButton.Font = menuButtonFont;
+        upButton.Location = new Point(newButton.Width - upButton.Width, 0);
+        upButton.Text = "\u25B4";
+        upButton.Text = "move up";
+        upButton.Click += new EventHandler(UpButton_Click);
+
+        Button downButton = new Button();
+        downButton.Name = newButton.Id.ToString();
+        downButton.FlatStyle = FlatStyle.Flat;
+        downButton.Size = menuButtonSize;
+        downButton.Font = menuButtonFont;
+        downButton.Location = new Point(newButton.Width - downButton.Width, newButton.Height - downButton.Height);
+        downButton.Text = "\u25BE";
+        downButton.Text = "move down";
+        downButton.Click += new EventHandler(DownButton_Click);
+
+        Button removeButton = new Button();
+        removeButton.Name = newButton.Id.ToString();
+        removeButton.FlatStyle = FlatStyle.Flat;
+        removeButton.Size = menuButtonSize;
+        removeButton.Font = menuButtonFont;
+        removeButton.Location = new Point(newButton.Width - removeButton.Width, removeButton.Height);
+        removeButton.Text = "\u1F5D1";
+        removeButton.Text = "remove";
+        removeButton.Click += new EventHandler(RemoveButton_Click);
+ 
+        newButton.Controls.Add(upButton);
+        newButton.Controls.Add(downButton);
+        newButton.Controls.Add(removeButton);
         return newButton;
+    }
+
+    private void RemoveButton_Click(object sender, EventArgs e)
+    {
+        Button menuButton = (Button)sender;
+        int removeIndex = this.ChosenEffectsList.IndexOf(this.ChosenEffectsList.Find(delegate (FXButton x) { return x.Id.ToString() == menuButton.Name; }));
+        this.ChosenEffectsList.RemoveAt(removeIndex);
+        redrawChosenFXPanel();
+    }
+
+    private void DownButton_Click(object sender, EventArgs e)
+    {
+        throw new NotImplementedException();
+    }
+
+    private void UpButton_Click(object sender, EventArgs e)
+    {
+
     }
 
     private void redrawChosenFXPanel()
