@@ -190,13 +190,19 @@ public partial class CloneAndAddEffectsForm : Form
     public FXButton createFXButton(ISfGenericEffect effect, ISfGenericPreset preset)
     {
         FXButton newButton = new FXButton();
+        newButton.Id = Guid.NewGuid();
         newButton.Size = new Size(this.chosenFXPanel.Width - 8, 50);
         newButton.BackColor = Button.DefaultBackColor;
         newButton.ForeColor = Button.DefaultForeColor;
         newButton.FlatStyle = FlatStyle.Flat;
-        newButton.Text = effect.Name;
+        //newButton.TextAlign = ContentAlignment.MiddleLeft;
+        newButton.Text = String.Format("{0}     |     {1}", effect.Name, preset.Name);
+        // Want to make sure our button text is not too long.
+        if (newButton.Text.Length > 100)
+            newButton.Text = String.Format("{0}...", newButton.Text.Substring(0, 100));
         newButton.Effect = effect;
         newButton.Preset = preset;
+        newButton.Click += new EventHandler(FXButton_Click);
         return newButton;
     }
 
@@ -219,16 +225,18 @@ public partial class CloneAndAddEffectsForm : Form
         ISfGenericEffect effect = this.App.FindEffect(chosenEffect);
         ISfGenericPreset preset = effect.ChoosePreset(this.Handle, "Default Template");
 
-        ChosenEffectsList.Add(createFXButton(effect, preset));
-        redrawChosenFXPanel();
+        if (effect != null && preset != null)
+        {
+            ChosenEffectsList.Add(createFXButton(effect, preset));
+            redrawChosenFXPanel();
 
-        this.App.OutputText(string.Format("Added {0} to chosen effects list. List length: {1}", chosenEffect, this.ChosenEffectsList.Count));
+            this.App.OutputText(string.Format("Added {0} to chosen effects list. List length: {1}", chosenEffect, this.ChosenEffectsList.Count));
+        }
+        else
+            return;
 
-        
         //TODO: Add a sense of order to the effects that is sortable with buttons
-        //TODO: Consider a DataGridView to show Effect name and preset -- Double-click on item lets user edit preset
         //TODO: Reorder with drag and drop?
-        //TODO: Adding effects adds a button with the effect name and preset -- Clicking button lets user edit the preset
     }
 
     private void runScriptButton_Click(object sender, EventArgs e)
@@ -279,6 +287,25 @@ public partial class CloneAndAddEffectsForm : Form
     {
         this.clearForm();
     }
+
+    private void FXButton_Click(object sender, EventArgs e)
+    {
+        FXButton fxB = (FXButton)sender;
+        ISfGenericPreset preset = fxB.Effect.ChoosePreset(this.Handle, "Default Template");
+        if (preset != null)
+        {
+            FXButton newFXButton = createFXButton(fxB.Effect, preset);
+            /* 
+            Have to use the anonymous method here instead of lambda presumably because SF 10 is using .NET 2?
+            .NET 3+ You would use: int oldButton = this.ChosenEffectsList.IndexOf(this.ChosenEffectsList.Find(x => x.Id == fxB.Id)); 
+            */
+            int oldButton = this.ChosenEffectsList.IndexOf(this.ChosenEffectsList.Find(delegate (FXButton x) { return x.Id == fxB.Id; }));
+            this.ChosenEffectsList[oldButton] = newFXButton;
+            redrawChosenFXPanel();
+        }
+        else
+            return;
+    }
 }
 
 partial class CloneAndAddEffectsForm
@@ -306,6 +333,7 @@ public class FXButton: Button
 {
     private ISfGenericEffect _effect;
     private ISfGenericPreset _preset;
+    private Guid _id;
 
     public ISfGenericEffect Effect
     {
@@ -330,6 +358,19 @@ public class FXButton: Button
         set
         {
             _preset = value;
+        }
+    }
+
+    public Guid Id
+    {
+        get
+        {
+            return _id;
+        }
+
+        set
+        {
+            _id = value;
         }
     }
 }
