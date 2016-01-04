@@ -16,20 +16,19 @@ public partial class CloneAndAddEffectsForm : Form
     }
     private bool _DEBUG;
     private string _loopsFolder;
-    private List<string> _chosenEffectsList = new List<string>();
-    private OrderedDictionary _chosenEffectDict = new OrderedDictionary();
+    private List<FXButton> _chosenEffectsList = new List<FXButton>();
     private Button selectLoopsButton;
     private Button addFXButton;
-    private ListBox effectsListBox;
     private Button runScriptButton;
     private Button resetFormButton;
+    private FlowLayoutPanel chosenFXPanel;
     private IScriptableApp _app;
 
     public void clearForm()
     {
-        this.ChosenEffectDict.Clear();
+        this.ChosenEffectsList.Clear();
         this.LoopsFolder = null;
-        this.effectsListBox.DataSource = null;
+        this.chosenFXPanel.Controls.Clear();
         this.selectLoopsButton.Text = "Select Loop Files Folder";
         this.runScriptButton.Text = "RUN SCRIPT";
         this.App.OutputText("Form cleared.");
@@ -75,7 +74,7 @@ public partial class CloneAndAddEffectsForm : Form
         }
     }
 
-    public List<string> ChosenEffectsList
+    public List<FXButton> ChosenEffectsList
     {
         get
         {
@@ -88,26 +87,13 @@ public partial class CloneAndAddEffectsForm : Form
         }
     }
 
-    public OrderedDictionary ChosenEffectDict
-    {
-        get
-        {
-            return _chosenEffectDict;
-        }
-
-        set
-        {
-            _chosenEffectDict = value;
-        }
-    }
-
     private void InitializeComponent()
     {
             this.selectLoopsButton = new System.Windows.Forms.Button();
             this.addFXButton = new System.Windows.Forms.Button();
-            this.effectsListBox = new System.Windows.Forms.ListBox();
             this.runScriptButton = new System.Windows.Forms.Button();
             this.resetFormButton = new System.Windows.Forms.Button();
+            this.chosenFXPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.SuspendLayout();
             // 
             // selectLoopsButton
@@ -130,15 +116,6 @@ public partial class CloneAndAddEffectsForm : Form
             this.addFXButton.UseVisualStyleBackColor = true;
             this.addFXButton.Click += new System.EventHandler(this.addFXButton_Click);
             // 
-            // effectsListBox
-            // 
-            this.effectsListBox.FormattingEnabled = true;
-            this.effectsListBox.ItemHeight = 16;
-            this.effectsListBox.Location = new System.Drawing.Point(51, 176);
-            this.effectsListBox.Name = "effectsListBox";
-            this.effectsListBox.Size = new System.Drawing.Size(664, 292);
-            this.effectsListBox.TabIndex = 3;
-            // 
             // runScriptButton
             // 
             this.runScriptButton.Enabled = false;
@@ -160,12 +137,24 @@ public partial class CloneAndAddEffectsForm : Form
             this.resetFormButton.UseVisualStyleBackColor = true;
             this.resetFormButton.Click += new System.EventHandler(this.resetFormButton_Click);
             // 
+            // chosenFXPanel
+            // 
+            this.chosenFXPanel.AutoScroll = true;
+            this.chosenFXPanel.BackColor = System.Drawing.SystemColors.Window;
+            this.chosenFXPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.chosenFXPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            this.chosenFXPanel.Location = new System.Drawing.Point(51, 176);
+            this.chosenFXPanel.Name = "chosenFXPanel";
+            this.chosenFXPanel.Size = new System.Drawing.Size(664, 314);
+            this.chosenFXPanel.TabIndex = 6;
+            this.chosenFXPanel.WrapContents = false;
+            // 
             // CloneAndAddEffectsForm
             // 
             this.ClientSize = new System.Drawing.Size(766, 589);
+            this.Controls.Add(this.chosenFXPanel);
             this.Controls.Add(this.resetFormButton);
             this.Controls.Add(this.runScriptButton);
-            this.Controls.Add(this.effectsListBox);
             this.Controls.Add(this.addFXButton);
             this.Controls.Add(this.selectLoopsButton);
             this.Name = "CloneAndAddEffectsForm";
@@ -198,6 +187,25 @@ public partial class CloneAndAddEffectsForm : Form
         ISfEffectList fxList = this.App.Effects;
     }
 
+    public FXButton createFXButton(ISfGenericEffect effect, ISfGenericPreset preset)
+    {
+        FXButton newButton = new FXButton();
+        newButton.Size = new Size(this.chosenFXPanel.Width - 8, 50);
+        newButton.BackColor = Button.DefaultBackColor;
+        newButton.ForeColor = Button.DefaultForeColor;
+        newButton.FlatStyle = FlatStyle.Flat;
+        newButton.Text = effect.Name;
+        newButton.Effect = effect;
+        newButton.Preset = preset;
+        return newButton;
+    }
+
+    private void redrawChosenFXPanel()
+    {
+        this.chosenFXPanel.Controls.Clear();
+        this.chosenFXPanel.Controls.AddRange(this.ChosenEffectsList.ToArray());
+    }
+
     private void addFXButton_Click(object sender, EventArgs e)
     {
         //TODO: Consider doing this once during object init
@@ -208,14 +216,13 @@ public partial class CloneAndAddEffectsForm : Form
             fxNames[x] = fxList[x].Name;
         }
         string chosenEffect = SfHelpers.ChooseItemFromList("Select destination file type:", fxNames).ToString();
-        ChosenEffectsList.Add(chosenEffect);
-        this.effectsListBox.DataSource = null;
-        this.effectsListBox.DataSource = ChosenEffectsList;
-        this.App.OutputText(string.Format("Added {0} to chosen effects list.", chosenEffect));
-
         ISfGenericEffect effect = this.App.FindEffect(chosenEffect);
         ISfGenericPreset preset = effect.ChoosePreset(this.Handle, "Default Template");
-        this.ChosenEffectDict.Add(effect.Name, preset);
+
+        ChosenEffectsList.Add(createFXButton(effect, preset));
+        redrawChosenFXPanel();
+
+        this.App.OutputText(string.Format("Added {0} to chosen effects list. List length: {1}", chosenEffect, this.ChosenEffectsList.Count));
 
         
         //TODO: Add a sense of order to the effects that is sortable with buttons
@@ -252,8 +259,8 @@ public partial class CloneAndAddEffectsForm : Form
                 newFile.OverwriteAudio(newFile.Length, 0, newFile, newAsel);
 
             // apply the given effects/presets
-            foreach (string efx in ChosenEffectDict.Keys)
-                newFile.DoEffect(efx, ChosenEffectDict[efx], new SfAudioSelection(newFile), EffectOptions.EffectOnly);
+            foreach (FXButton fxB in ChosenEffectsList)
+                newFile.DoEffect(fxB.Name, fxB.Preset, new SfAudioSelection(newFile), EffectOptions.EffectOnly);
 
             // trim the original length of the loop from the beginning and end to leave the middle loop
             newFile.CropAudio(origLength, origLength);
@@ -266,10 +273,6 @@ public partial class CloneAndAddEffectsForm : Form
 
             this.runScriptButton.Text = "DONE.";
         }
-
-
-
-
     }
 
     private void resetFormButton_Click(object sender, EventArgs e)
@@ -299,6 +302,37 @@ partial class CloneAndAddEffectsForm
     }
 }
 
+public class FXButton: Button
+{
+    private ISfGenericEffect _effect;
+    private ISfGenericPreset _preset;
+
+    public ISfGenericEffect Effect
+    {
+        get
+        {
+            return _effect;
+        }
+
+        set
+        {
+            _effect = value;
+        }
+    }
+
+    public ISfGenericPreset Preset
+    {
+        get
+        {
+            return _preset;
+        }
+
+        set
+        {
+            _preset = value;
+        }
+    }
+}
 
 public class EntryPoint
 {
