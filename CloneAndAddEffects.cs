@@ -24,8 +24,7 @@ public partial class CloneAndAddEffectsForm : Form
     private FlowLayoutPanel chosenFXPanel;
     private StatusStrip statusStrip1;
     private ToolStripStatusLabel toolStripStatusLabel1;
-    private TextBox logTextBox;
-    private Label logLabel;
+    private ProgressBar progressBar1;
     private IScriptableApp _app;
 
     public void clearForm()
@@ -34,8 +33,7 @@ public partial class CloneAndAddEffectsForm : Form
         this.LoopsFolder = null;
         this.chosenFXPanel.Controls.Clear();
         this.selectLoopsButton.Text = "Select Loop Files Folder";
-        clearLog();
-        toolStripMessageTimed(3000, "Form cleared.", true);
+        toolStripMessageTimed(3000, "Form cleared.");
         this.runScriptButton.Enabled = false;
     }
 
@@ -100,14 +98,13 @@ public partial class CloneAndAddEffectsForm : Form
             this.chosenFXPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.logTextBox = new System.Windows.Forms.TextBox();
-            this.logLabel = new System.Windows.Forms.Label();
+            this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // selectLoopsButton
             // 
-            this.selectLoopsButton.Location = new System.Drawing.Point(51, 32);
+            this.selectLoopsButton.Location = new System.Drawing.Point(26, 32);
             this.selectLoopsButton.Name = "selectLoopsButton";
             this.selectLoopsButton.Size = new System.Drawing.Size(664, 64);
             this.selectLoopsButton.TabIndex = 0;
@@ -117,7 +114,7 @@ public partial class CloneAndAddEffectsForm : Form
             // 
             // addFXButton
             // 
-            this.addFXButton.Location = new System.Drawing.Point(51, 103);
+            this.addFXButton.Location = new System.Drawing.Point(26, 103);
             this.addFXButton.Name = "addFXButton";
             this.addFXButton.Size = new System.Drawing.Size(135, 66);
             this.addFXButton.TabIndex = 2;
@@ -128,9 +125,9 @@ public partial class CloneAndAddEffectsForm : Form
             // runScriptButton
             // 
             this.runScriptButton.Enabled = false;
-            this.runScriptButton.Location = new System.Drawing.Point(51, 496);
+            this.runScriptButton.Location = new System.Drawing.Point(31, 500);
             this.runScriptButton.Name = "runScriptButton";
-            this.runScriptButton.Size = new System.Drawing.Size(664, 66);
+            this.runScriptButton.Size = new System.Drawing.Size(654, 56);
             this.runScriptButton.TabIndex = 4;
             this.runScriptButton.Text = "RUN SCRIPT";
             this.runScriptButton.UseVisualStyleBackColor = true;
@@ -138,7 +135,7 @@ public partial class CloneAndAddEffectsForm : Form
             // 
             // resetFormButton
             // 
-            this.resetFormButton.Location = new System.Drawing.Point(580, 102);
+            this.resetFormButton.Location = new System.Drawing.Point(555, 102);
             this.resetFormButton.Name = "resetFormButton";
             this.resetFormButton.Size = new System.Drawing.Size(135, 66);
             this.resetFormButton.TabIndex = 5;
@@ -152,7 +149,7 @@ public partial class CloneAndAddEffectsForm : Form
             this.chosenFXPanel.BackColor = System.Drawing.SystemColors.Window;
             this.chosenFXPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.chosenFXPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.chosenFXPanel.Location = new System.Drawing.Point(51, 176);
+            this.chosenFXPanel.Location = new System.Drawing.Point(26, 176);
             this.chosenFXPanel.Name = "chosenFXPanel";
             this.chosenFXPanel.Size = new System.Drawing.Size(664, 314);
             this.chosenFXPanel.TabIndex = 6;
@@ -163,9 +160,9 @@ public partial class CloneAndAddEffectsForm : Form
             this.statusStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 727);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 591);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(766, 25);
+            this.statusStrip1.Size = new System.Drawing.Size(718, 25);
             this.statusStrip1.TabIndex = 7;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -175,35 +172,24 @@ public partial class CloneAndAddEffectsForm : Form
             this.toolStripStatusLabel1.Size = new System.Drawing.Size(34, 20);
             this.toolStripStatusLabel1.Text = "Idle";
             // 
-            // logTextBox
+            // progressBar1
             // 
-            this.logTextBox.Location = new System.Drawing.Point(51, 604);
-            this.logTextBox.Multiline = true;
-            this.logTextBox.Name = "logTextBox";
-            this.logTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.logTextBox.Size = new System.Drawing.Size(664, 94);
-            this.logTextBox.TabIndex = 8;
-            // 
-            // logLabel
-            // 
-            this.logLabel.AutoSize = true;
-            this.logLabel.Location = new System.Drawing.Point(48, 584);
-            this.logLabel.Name = "logLabel";
-            this.logLabel.Size = new System.Drawing.Size(32, 17);
-            this.logLabel.TabIndex = 9;
-            this.logLabel.Text = "Log";
+            this.progressBar1.Location = new System.Drawing.Point(26, 496);
+            this.progressBar1.Name = "progressBar1";
+            this.progressBar1.Size = new System.Drawing.Size(664, 65);
+            this.progressBar1.TabIndex = 8;
             // 
             // CloneAndAddEffectsForm
             // 
-            this.ClientSize = new System.Drawing.Size(766, 752);
-            this.Controls.Add(this.logLabel);
-            this.Controls.Add(this.logTextBox);
+            this.BackColor = System.Drawing.SystemColors.Control;
+            this.ClientSize = new System.Drawing.Size(718, 616);
+            this.Controls.Add(this.runScriptButton);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.chosenFXPanel);
             this.Controls.Add(this.resetFormButton);
-            this.Controls.Add(this.runScriptButton);
             this.Controls.Add(this.addFXButton);
             this.Controls.Add(this.selectLoopsButton);
+            this.Controls.Add(this.progressBar1);
             this.Name = "CloneAndAddEffectsForm";
             this.Text = "CloneAndAddEffects";
             this.statusStrip1.ResumeLayout(false);
@@ -229,9 +215,6 @@ public partial class CloneAndAddEffectsForm : Form
         {
             return;
         }
-
-        addLogLine(string.Format("Loops folder chosen: {0}", LoopsFolder));
-
     }
 
     private void populateEffectsListBox()
@@ -354,8 +337,6 @@ public partial class CloneAndAddEffectsForm : Form
         {
             ChosenEffectsList.Add(createFXButton(effect, preset));
             redrawChosenFXPanel();
-
-            addLogLine(string.Format("Added {0} to effects deck. Number of Effects: {1}", chosenEffect, this.ChosenEffectsList.Count));
         }
         else
             return;
@@ -367,9 +348,11 @@ public partial class CloneAndAddEffectsForm : Form
     private void runScriptButton_Click(object sender, EventArgs e)
     {
         toolStripStatusLabel1.Text = "Processing";
+        progressBar1.Value = 0;
+        progressBar1.Step = 1;
+        progressBar1.Maximum = Directory.GetFiles(this.LoopsFolder, "*.wav").Length;
         // create output folder
         string outputDir = Path.Combine(this.LoopsFolder, "Output");
-        addLogLine(string.Format("Output Folder created at: {0}", outputDir));
         if (!Directory.Exists(outputDir))
         {
             Directory.CreateDirectory(outputDir);
@@ -378,6 +361,7 @@ public partial class CloneAndAddEffectsForm : Form
         // open each wav file in the given folder of loops
         foreach (string wavFile in Directory.GetFiles(this.LoopsFolder, "*.wav"))
         {
+            progressBar1.PerformStep();
             // open the file
             ISfFileHost loopFile = this.App.OpenFile(wavFile, true, true);
             // copy the audio and paste it twice to make the loop 3x as long
@@ -395,7 +379,6 @@ public partial class CloneAndAddEffectsForm : Form
             // apply the given effects/presets
             foreach (FXButton fxB in ChosenEffectsList)
             {
-                addLogLine(string.Format("Applying Effect: {0}, Preset: {1} to {2}", fxB.Effect.Name, fxB.Preset.Name, wavFile));
                 newFile.DoEffect(fxB.Name, fxB.Preset, new SfAudioSelection(newFile), EffectOptions.EffectOnly);
             }
 
@@ -404,11 +387,10 @@ public partial class CloneAndAddEffectsForm : Form
 
             // save to output folder
             string outPath = Path.Combine(outputDir, Path.GetFileName(wavFile));
-            addLogLine(string.Format("Saving to {0}.", outPath));
             newFile.SaveAs(outPath, newFile.SaveFormat.Guid, "Default Template", RenderOptions.OverwriteExisting | RenderOptions.WaitForDoneOrCancel);
             newFile.Close(CloseOptions.SaveChanges);
         }
-        toolStripMessageTimed(3000, "Processing complete.", "Idle", true);
+        toolStripMessageTimed(3000, "Processing complete.", "Idle");
     }
 
     private void resetFormButton_Click(object sender, EventArgs e)
@@ -435,27 +417,17 @@ public partial class CloneAndAddEffectsForm : Form
             return;
     }
 
-    private void addLogLine(string line)
+    private void toolStripMessageTimed(string message)
     {
-        this.logTextBox.Text += line + Environment.NewLine;
+        toolStripMessageTimed(0, message, String.Empty);
     }
 
-    private void clearLog()
+    private void toolStripMessageTimed(int timeInMs, string message)
     {
-        this.logTextBox.Clear();
+        toolStripMessageTimed(timeInMs, message, String.Empty);
     }
 
-    private void toolStripMessageTimed(string message, bool addToLog)
-    {
-        toolStripMessageTimed(0, message, String.Empty, addToLog);
-    }
-
-    private void toolStripMessageTimed(int timeInMs, string message, bool addToLog)
-    {
-        toolStripMessageTimed(timeInMs, message, String.Empty, addToLog);
-    }
-
-    private void toolStripMessageTimed(int timeInMs, string message, string defaultMessage, bool addToLog)
+    private void toolStripMessageTimed(int timeInMs, string message, string defaultMessage)
     {
         string currentLabel = toolStripStatusLabel1.Text;
         if (!String.IsNullOrEmpty(defaultMessage))
@@ -474,9 +446,6 @@ public partial class CloneAndAddEffectsForm : Form
         }
         else
             toolStripStatusLabel1.Text = message;
-
-        if (addToLog)
-            addLogLine(message);
     }
 }
 
