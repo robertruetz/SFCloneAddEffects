@@ -255,12 +255,28 @@ public partial class CloneAndAddEffectsForm : Form
 
     private void DownButton_Click(object sender, EventArgs e)
     {
-        throw new NotImplementedException();
+        Button menuButton = (Button)sender;
+        int moveIndex = this.ChosenEffectsList.IndexOf(this.ChosenEffectsList.Find(delegate (FXButton x) { return x.Id.ToString() == menuButton.Name; }));
+        if (moveIndex == this.ChosenEffectsList.Count - 1)
+            return;
+        moveFXButton(moveIndex, 1);
     }
 
     private void UpButton_Click(object sender, EventArgs e)
     {
+        Button menuButton = (Button)sender;
+        int moveIndex = this.ChosenEffectsList.IndexOf(this.ChosenEffectsList.Find(delegate (FXButton x) { return x.Id.ToString() == menuButton.Name; }));
+        if (moveIndex == 0)
+            return;
+        moveFXButton(moveIndex, -1);
+    }
 
+    private void moveFXButton(int indexToMove, int upOrDown)
+    {
+        FXButton destination = this.ChosenEffectsList[indexToMove + upOrDown];
+        this.ChosenEffectsList[indexToMove + upOrDown] = this.ChosenEffectsList[indexToMove];
+        this.ChosenEffectsList[indexToMove] = destination;
+        redrawChosenFXPanel();
     }
 
     private void redrawChosenFXPanel()
