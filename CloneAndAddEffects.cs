@@ -25,6 +25,7 @@ public partial class CloneAndAddEffectsForm : Form
     private StatusStrip statusStrip1;
     private ToolStripStatusLabel toolStripStatusLabel1;
     private ProgressBar progressBar1;
+    private CheckBox closeCheckBox;
     private IScriptableApp _app;
 
     public void clearForm()
@@ -99,6 +100,7 @@ public partial class CloneAndAddEffectsForm : Form
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
+            this.closeCheckBox = new System.Windows.Forms.CheckBox();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -160,7 +162,7 @@ public partial class CloneAndAddEffectsForm : Form
             this.statusStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 591);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 603);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(718, 25);
             this.statusStrip1.TabIndex = 7;
@@ -179,10 +181,23 @@ public partial class CloneAndAddEffectsForm : Form
             this.progressBar1.Size = new System.Drawing.Size(664, 65);
             this.progressBar1.TabIndex = 8;
             // 
+            // closeCheckBox
+            // 
+            this.closeCheckBox.AutoSize = true;
+            this.closeCheckBox.Checked = true;
+            this.closeCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.closeCheckBox.Location = new System.Drawing.Point(26, 571);
+            this.closeCheckBox.Name = "closeCheckBox";
+            this.closeCheckBox.Size = new System.Drawing.Size(169, 21);
+            this.closeCheckBox.TabIndex = 9;
+            this.closeCheckBox.Text = "Close When Complete";
+            this.closeCheckBox.UseVisualStyleBackColor = true;
+            // 
             // CloneAndAddEffectsForm
             // 
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(718, 616);
+            this.ClientSize = new System.Drawing.Size(718, 628);
+            this.Controls.Add(this.closeCheckBox);
             this.Controls.Add(this.runScriptButton);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.chosenFXPanel);
@@ -391,6 +406,8 @@ public partial class CloneAndAddEffectsForm : Form
             newFile.Close(CloseOptions.SaveChanges);
         }
         toolStripMessageTimed(3000, "Processing complete.", "Idle");
+        if (closeCheckBox.Checked)
+            this.Close();
     }
 
     private void resetFormButton_Click(object sender, EventArgs e)
